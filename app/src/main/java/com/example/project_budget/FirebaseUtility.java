@@ -52,6 +52,10 @@ public class FirebaseUtility {
         return mDatabase.getReference(path);
     }
 
+    public FirebaseAuth getmFirebaseAuth(){
+        return this.mFirebaseAuth;
+    }
+
 
 
 }

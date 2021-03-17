@@ -31,8 +31,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "JG";
     protected FragmentManager fragmentManager;
-    protected FirebaseAuth mFirebaseAuth;
-    protected FirebaseDatabase mDatabase;
+//    protected FirebaseAuth mFirebaseAuth;
+//    protected FirebaseDatabase mDatabase;
+    protected FirebaseUtility firebaseUtility;
 
     private final int RC_AUTH = 1;
 
@@ -49,33 +50,35 @@ public class MainActivity extends AppCompatActivity {
 
         // Get References
         fragmentManager = getSupportFragmentManager();
-        mDatabase = FirebaseDatabase.getInstance();
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mDatabase = FirebaseDatabase.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
+        firebaseUtility = new FirebaseUtility();
 
         // initalize DataViewModel
         viewModel = new ViewModelProvider(this).get(DataViewModel.class);
 
-        // authenticate to firebase:
-        if (mFirebaseAuth.getCurrentUser() == null) {
-            // Choose authentication providers
-            List<AuthUI.IdpConfig> providers = Arrays.asList(
-                    new AuthUI.IdpConfig.EmailBuilder().build(),
-                    new AuthUI.IdpConfig.GoogleBuilder().build());
-
-            // Create and launch sign-in intent
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(providers)
-                            .build(),
-                    RC_AUTH);
-        }
+//        // authenticate to firebase:
+//        if (mFirebaseAuth.getCurrentUser() == null) {
+//            // Choose authentication providers
+//            List<AuthUI.IdpConfig> providers = Arrays.asList(
+//                    new AuthUI.IdpConfig.EmailBuilder().build(),
+//                    new AuthUI.IdpConfig.GoogleBuilder().build());
+//
+//            // Create and launch sign-in intent
+//            startActivityForResult(
+//                    AuthUI.getInstance()
+//                            .createSignInIntentBuilder()
+//                            .setAvailableProviders(providers)
+//                            .build(),
+//                    RC_AUTH);
+//        }
+        firebaseUtility.authenticate(this);
 
         ArrayList<Category> categories = createDummieCategories();
 
 
         // write to db
-        DatabaseReference myRef = mDatabase.getReference("Categories");
+        DatabaseReference myRef = firebaseUtility.getDBReference("Categories");
         myRef.push();
         findViewById(R.id.testWrite).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                FirebaseUser user = mFirebaseAuth.getCurrentUser();
+                FirebaseUser user = firebaseUtility.getmFirebaseAuth().getCurrentUser();
                 Toast.makeText(this,"Logged in!", Toast.LENGTH_LONG).show();
                 // ...
 
