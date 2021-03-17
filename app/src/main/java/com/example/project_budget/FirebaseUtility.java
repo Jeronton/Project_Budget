@@ -13,16 +13,24 @@ import java.util.List;
 import static androidx.core.app.ActivityCompat.startActivityForResult;
 
 public class FirebaseUtility {
+    private static FirebaseUtility instance;
+
     protected FirebaseAuth mFirebaseAuth;
     protected FirebaseDatabase mDatabase;
 
     private final int RC_AUTH = 1;
 
-    public FirebaseUtility() {
+
+    private FirebaseUtility() {
         mDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
+    }
 
-
+    public static FirebaseUtility getInstance(){
+        if (instance == null){
+            instance = new FirebaseUtility();
+        }
+        return instance;
     }
 
 
@@ -54,6 +62,10 @@ public class FirebaseUtility {
 
     public FirebaseAuth getmFirebaseAuth(){
         return this.mFirebaseAuth;
+    }
+
+    public void saveTrasnaction(Transaction transaction, int categoryIndex){
+
     }
 
 

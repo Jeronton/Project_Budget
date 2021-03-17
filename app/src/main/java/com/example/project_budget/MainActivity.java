@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
 //        mDatabase = FirebaseDatabase.getInstance();
 //        mFirebaseAuth = FirebaseAuth.getInstance();
-        firebaseUtility = new FirebaseUtility();
+        firebaseUtility = FirebaseUtility.getInstance();
 
         // initalize DataViewModel
         viewModel = new ViewModelProvider(this).get(DataViewModel.class);

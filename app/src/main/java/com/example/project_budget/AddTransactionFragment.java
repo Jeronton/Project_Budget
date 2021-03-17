@@ -30,8 +30,7 @@ public class AddTransactionFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_INDEX = "index";
 
-    protected FirebaseAuth mFirebaseAuth;
-    protected FirebaseDatabase mDatabase;
+    protected FirebaseUtility firebaseUtility;
 
     private int index;
 
@@ -64,8 +63,7 @@ public class AddTransactionFragment extends Fragment {
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_INDEX);
         }
-        mDatabase = FirebaseDatabase.getInstance();
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        firebaseUtility = new FirebaseUtility();
     }
 
     @Override
@@ -98,7 +96,7 @@ public class AddTransactionFragment extends Fragment {
     }
 
     /**
-     * Adds a transaction to the db based on the
+     * Adds a transaction to the db based on the edit text values.
      */
     private void addTransaction(){
         float amount = 0;
@@ -157,6 +155,7 @@ public class AddTransactionFragment extends Fragment {
         if (valid) {
             Transaction trans = new Transaction(amount, desc, location, notes, date);
             // add transaction
+
 
         }
     }
