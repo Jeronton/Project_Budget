@@ -6,8 +6,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,9 @@ import java.util.Date;
  */
 public class AddTransactionFragment extends Fragment {
 
+    private final String TAG = "JG";
+    protected FragmentManager fragmentManager;
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_INDEX = "index";
 
@@ -38,7 +43,7 @@ public class AddTransactionFragment extends Fragment {
     private int index;
 
     private EditText etAmount, etDate, etLocation, etDesc, etNotes;
-    private Button btnAddTrans;
+    private Button btnAddTrans, btnCancel;
 
     public AddTransactionFragment() {
         // Required empty public constructor
@@ -65,7 +70,9 @@ public class AddTransactionFragment extends Fragment {
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_INDEX);
         }
+        // Get References
         firebaseUtility = FirebaseUtility.getInstance();
+        fragmentManager = getParentFragmentManager();
         viewModel = new ViewModelProvider(requireActivity()).get(DataViewModel.class);
     }
 
@@ -87,12 +94,22 @@ public class AddTransactionFragment extends Fragment {
         etDesc = view.findViewById(R.id.et_desc);
         etNotes = view.findViewById(R.id.et_notes);
         btnAddTrans = view.findViewById(R.id.btn_add_transaction);
+        btnCancel = view.findViewById(R.id.btn_cancel);
 
         // set add transaction listener
         btnAddTrans.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addTransaction();
+            }
+        });
+
+
+        // set cancel/back listener
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeFragment();
             }
         });
 
