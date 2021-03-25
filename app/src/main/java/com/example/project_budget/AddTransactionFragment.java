@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,8 @@ public class AddTransactionFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_INDEX = "index";
 
+    private DataViewModel viewModel;
+
     protected FirebaseUtility firebaseUtility;
 
     private int index;
@@ -48,7 +51,6 @@ public class AddTransactionFragment extends Fragment {
      * @param index The index of the category in the ViewModel list of categories.
      * @return A new instance of fragment AddTransactionFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static AddTransactionFragment newInstance(int index) {
         AddTransactionFragment fragment = new AddTransactionFragment();
         Bundle args = new Bundle();
@@ -63,7 +65,8 @@ public class AddTransactionFragment extends Fragment {
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_INDEX);
         }
-        firebaseUtility = new FirebaseUtility();
+        firebaseUtility = FirebaseUtility.getInstance();
+        viewModel = new ViewModelProvider(requireActivity()).get(DataViewModel.class);
     }
 
     @Override
@@ -99,7 +102,7 @@ public class AddTransactionFragment extends Fragment {
      * Adds a transaction to the db based on the edit text values.
      */
     private void addTransaction(){
-        float amount = 0;
+        double amount = 0;
         String location = "";
         String desc = "";
         String notes = "";
@@ -123,7 +126,7 @@ public class AddTransactionFragment extends Fragment {
                 throw new Exception("required");
             }
             else {
-                amount = Float.parseFloat(etAmount.getText().toString());
+                amount = Double.parseDouble(etAmount.getText().toString());
             }
         }
         catch (Exception e){
@@ -137,7 +140,7 @@ public class AddTransactionFragment extends Fragment {
                 throw new Exception("required");
             }
             else {
-                SimpleDateFormat format = new SimpleDateFormat("yyyy/mm/dd");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
                 date = format.parse(etDate.getText().toString());
             }
         }
@@ -155,8 +158,13 @@ public class AddTransactionFragment extends Fragment {
         if (valid) {
             Transaction trans = new Transaction(amount, desc, location, notes, date);
             // add transaction
-
-
+            int position = viewModel.getCategories().getValue().get(index).getTransactions().size();
+            firebaseUtility.saveTransaction(trans, index, position);
+            closeFragment();
         }
+    }
+
+    private void closeFragment(){
+        getParentFragmentManager().popBackStack();
     }
 }

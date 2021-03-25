@@ -12,6 +12,9 @@ import java.util.List;
 
 import static androidx.core.app.ActivityCompat.startActivityForResult;
 
+/**
+ * Provides firbase functionality for Project Budget.
+ */
 public class FirebaseUtility {
     private static FirebaseUtility instance;
 
@@ -26,6 +29,10 @@ public class FirebaseUtility {
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
+    /**
+     * Gets the singleton instance of FirebaseUtility.
+     * @return The instance of FirebaseUtility.
+     */
     public static FirebaseUtility getInstance(){
         if (instance == null){
             instance = new FirebaseUtility();
@@ -34,7 +41,10 @@ public class FirebaseUtility {
     }
 
 
-
+    /**
+     * Authenticates the user. If not logged in then will start login activity for result, using request code 1.
+     * @param activity The activity to direct the login response to.
+     */
     public void authenticate(Activity activity) {
         // authenticate to firebase:
         if (mFirebaseAuth.getCurrentUser() == null) {
@@ -55,16 +65,38 @@ public class FirebaseUtility {
         }
     }
 
-
+    /**
+     * Gets a Firebase DB reference for the path specified.
+     * @param path The path in the database to get a reference to.
+     * @return The database reference.
+     */
     public DatabaseReference getDBReference(String path){
         return mDatabase.getReference(path);
     }
 
+    /**
+     * Gets the Firebase Auth.
+     * @return The Firebase Auth.
+     */
     public FirebaseAuth getmFirebaseAuth(){
         return this.mFirebaseAuth;
     }
 
-    public void saveTrasnaction(Transaction transaction, int categoryIndex){
+    /**
+     * Saves a transaction to the database.
+     * @param transaction The transaction to save.
+     * @param categoryIndex The index of the category to save transaction under.
+     * @param transactionIndex The index of the transaction in transactions array for its category.
+     *                         Should be 1 higher then the last transaction when adding a new transaction.
+     */
+    public void saveTransaction(Transaction transaction, Integer categoryIndex, Integer transactionIndex){
+
+        DatabaseReference ref = mDatabase.getReference()
+                .child("Categories")
+                .child(categoryIndex.toString())
+                .child("transactions")
+                .child(transactionIndex.toString());
+        ref.setValue(transaction);
 
     }
 

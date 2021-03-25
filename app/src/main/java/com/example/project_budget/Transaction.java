@@ -31,7 +31,7 @@ public class Transaction {
     public static Transaction parseTransaction(HashMap<String, Object> transaction){
         Transaction parsedTransaction;
         try{
-            double amount = (Double)transaction.get("amount");
+            double amount = Double.parseDouble(transaction.get("amount").toString());
             String description = (String)transaction.get("description");
             String location = (String)transaction.get("location");
             String notes = (String)transaction.get("notes");
