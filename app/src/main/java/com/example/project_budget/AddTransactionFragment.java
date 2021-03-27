@@ -5,21 +5,17 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,41 +30,62 @@ public class AddTransactionFragment extends Fragment {
     protected FragmentManager fragmentManager;
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_INDEX = "index";
+    private static final String ARG_CAT_INDEX = "category_index";
+    private static final String ARG_TRANS_INDEX = "transaction_index";
 
     private DataViewModel viewModel;
 
     protected FirebaseUtility firebaseUtility;
 
-    private int index;
+    private int category_index;
+    private int  transaction_index;
+    private boolean isModifyMode = false;
+
+    private Transaction transaction;
 
     private EditText etAmount, etDate, etLocation, etDesc, etNotes;
     private Button btnAddTrans, btnCancel;
+    ConstraintLayout clTransactionLayout;
 
     public AddTransactionFragment() {
         // Required empty public constructor
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param index The index of the category in the ViewModel list of categories.
-     * @return A new instance of fragment AddTransactionFragment.
+     * Gets an instance of the fragment in add transaction mode.
+     * @param category_index The category_index of the category in the ViewModel list of categories.
+     * @return A new instance of fragment AddTransactionFragment in add mode.
      */
-    public static AddTransactionFragment newInstance(int index) {
+    public static AddTransactionFragment newInstance(int category_index) {
         AddTransactionFragment fragment = new AddTransactionFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_INDEX, index);
+        args.putInt(ARG_CAT_INDEX, category_index);
         fragment.setArguments(args);
         return fragment;
     }
+
+    /**
+     * Gets an instance of the fragment in update/view transaction mode.
+     * @param category_index The category_index of the category in the ViewModel list of categories.
+     * @param transaction_index The category_index of the transaction to be modified/viewed.
+     * @return A new instance of fragment AddTransactionFragment in update/view mode.
+     */
+    public static AddTransactionFragment newInstance(int category_index, int transaction_index) {
+        AddTransactionFragment fragment = new AddTransactionFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_CAT_INDEX, category_index);
+        args.putInt(ARG_TRANS_INDEX, transaction_index);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            index = getArguments().getInt(ARG_INDEX);
+            category_index = getArguments().getInt(ARG_CAT_INDEX);
+            transaction_index = getArguments().getInt(ARG_TRANS_INDEX, -1);
         }
         // Get References
         firebaseUtility = FirebaseUtility.getInstance();
@@ -80,7 +97,15 @@ public class AddTransactionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add_transaction, container, false);
+        View view = inflater.inflate(R.layout.fragment_add_transaction, container, false);
+        if (transaction_index != -1) {
+            // is in modify/view mode
+            isModifyMode = true;
+            Button btn = view.findViewById(R.id.btn_cancel);
+            btn.setText(R.string.back_transaction_btn);
+        }
+
+        return view;
     }
 
     @Override
@@ -95,6 +120,23 @@ public class AddTransactionFragment extends Fragment {
         etNotes = view.findViewById(R.id.et_notes);
         btnAddTrans = view.findViewById(R.id.btn_add_transaction);
         btnCancel = view.findViewById(R.id.btn_cancel);
+        clTransactionLayout = view.findViewById(R.id.cl_transaction_layout);
+
+        // if in modify/view mode then get transaction and populate edit texts
+        if (isModifyMode){
+            transaction = viewModel
+                    .getCategories()
+                    .getValue()
+                    .get(category_index)
+                    .getTransactions().get(transaction_index);
+            Double amount = transaction.getAmount();
+            etAmount.setText(amount.toString());
+            etLocation.setText(transaction.getLocation());
+            etDesc.setText(transaction.getDescription());
+            etNotes.setText(transaction.getNotes());
+            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+            etDate.setText(format.format(transaction.getDate()));
+        }
 
         // set add transaction listener
         btnAddTrans.setOnClickListener(new View.OnClickListener() {
@@ -104,9 +146,16 @@ public class AddTransactionFragment extends Fragment {
             }
         });
 
-
         // set cancel/back listener
         btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeFragment();
+            }
+        });
+
+        // close when clicked outside of popup area
+        clTransactionLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 closeFragment();
@@ -175,12 +224,17 @@ public class AddTransactionFragment extends Fragment {
         if (valid) {
             Transaction trans = new Transaction(amount, desc, location, notes, date);
             // add transaction
-            int position = viewModel.getCategories().getValue().get(index).getTransactions().size();
-            firebaseUtility.saveTransaction(trans, index, position);
+
+            int position = isModifyMode ? transaction_index : viewModel.getCategories().getValue().get(category_index).getTransactions().size();
+            firebaseUtility.saveTransaction(trans, category_index, position);
             closeFragment();
         }
+
     }
 
+    /**
+     * Closes this Transaction fragment performing any required work.
+     */
     private void closeFragment(){
         getParentFragmentManager().popBackStack();
     }

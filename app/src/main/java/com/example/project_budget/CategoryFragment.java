@@ -107,9 +107,9 @@ public class CategoryFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                Transaction currentItem = transactionsList.get(i);
-
-                Toast.makeText(getContext(), "Transaction Clicked! Price: " + currentItem.getAmount(), Toast.LENGTH_LONG).show();
+                mainActivity.displayModifyTransaction(index, i);
+//                Transaction currentItem = transactionsList.get(i);
+//                Toast.makeText(getContext(), "Transaction Clicked! Price: " + currentItem.getAmount(), Toast.LENGTH_LONG).show();
 
             }
         });

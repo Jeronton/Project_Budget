@@ -160,6 +160,21 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    /**
+     * Displays the add transction fragment in modify mode
+     * @param categoryIndex The index of the category to add to.
+     * @param transactionIndex The index of the transaction to modify
+     */
+    public void displayModifyTransaction(int categoryIndex, int transactionIndex){
+        AddTransactionFragment frag = AddTransactionFragment.newInstance(categoryIndex, transactionIndex);
+//        fragmentManager.popBackStack();
+        fragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .add(R.id.fragment_container_view, frag, "AddTransaction")
+                .commit();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
